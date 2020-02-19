@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * Unfortunately functional endpoints not supported Rsocket yet :(
  *
  * Issue: https://github.com/spring-projects/spring-framework/issues/23135
-  */
+ */
 @RestController
 public class GreetingsController {
 
