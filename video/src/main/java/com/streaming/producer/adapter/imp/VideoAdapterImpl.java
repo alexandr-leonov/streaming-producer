@@ -17,9 +17,11 @@ import java.io.IOException;
 @Component
 public class VideoAdapterImpl implements VideoAdapter {
 
+    private static OpenCVFrameGrabber grabber;
+
     @Override
-    public byte[] getCapture() {
-        OpenCVFrameGrabber grabber = new OpenCVFrameGrabber(CamType.WEB_CAM.getCode());
+    public byte[] getCapture(String cameraName) {
+        grabber = new OpenCVFrameGrabber(CamType.getByName(cameraName).getCode());
         try{
             grabber.start();
             Frame frame = grabber.grab();
@@ -30,12 +32,18 @@ public class VideoAdapterImpl implements VideoAdapter {
             baos.flush();
             byte[] bytes = baos.toByteArray();
             baos.close();
-            grabber.release();
-            grabber.close();
             return bytes;
         } catch (IOException e) {
             log.error("Error in VideoApapter.getImage = {}", e.getMessage());
             throw new IllegalArgumentException("Sorry video cam is not available :(");
         }
     }
+
+    // TODO think about infinite frame streaming
+    @Override
+    public byte[] getVideo(String cameraName) {
+        throw new IllegalStateException("Not implemented yet!");
+    }
+
+    // TODO add "disable camera" method after closing rsocket
 }

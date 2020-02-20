@@ -28,9 +28,21 @@ public class FileController {
         return Mono.just(inputStream.readAllBytes());
     }
 
+    /*
+    * Get screenshot from cam
+    */
     @MessageMapping("cam-capture")
-    public Mono<byte[]> getCapture() {
-        return Mono.just(videoAdapter.getCapture());
+    public Mono<byte[]> getCapture(String cameraName) {
+        return Mono.just(videoAdapter.getCapture(cameraName));
+    }
+
+    /*
+     * Play finalized media file(not stream) in browser.
+     */
+    @MessageMapping("play-file")
+    Mono<byte[]> playMediaFile(String filename) throws IOException {
+        InputStream inputStream = resourceLoader.getClassLoader().getResourceAsStream("static/" + filename);
+        return Mono.just(inputStream.readAllBytes());
     }
 
 }
