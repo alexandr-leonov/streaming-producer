@@ -4,6 +4,7 @@ import com.streaming.producer.adapter.VideoAdapter;
 import com.streaming.producer.model.CamType;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
 import org.springframework.stereotype.Component;
@@ -16,11 +17,15 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class VideoAdapterImpl implements VideoAdapter {
-
     private static OpenCVFrameGrabber grabber;
+    private static boolean isCameraDisable;
 
     @Override
     public byte[] getCapture(String cameraName) {
+        if(isCameraDisable) {
+            //TODO how to enable camera
+            throw new IllegalArgumentException("Sorry video cam is closed :(");
+        }
         grabber = new OpenCVFrameGrabber(CamType.getByName(cameraName).getCode());
         try{
             grabber.start();
@@ -45,5 +50,16 @@ public class VideoAdapterImpl implements VideoAdapter {
         throw new IllegalStateException("Not implemented yet!");
     }
 
-    // TODO add "disable camera" method after closing rsocket
+    @Override
+    public boolean disableCamera() {
+        try {
+            //TODO how to disable camera. This implementation is not working yet.l
+            grabber.stop();
+            isCameraDisable = true;
+            return true;
+        } catch (FrameGrabber.Exception e) {
+            log.error("Error in VideoApapter.disableCamera = {}", e.getMessage());
+            return false;
+        }
+    }
 }

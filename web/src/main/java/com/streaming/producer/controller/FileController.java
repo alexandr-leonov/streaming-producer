@@ -45,4 +45,9 @@ public class FileController {
         return Mono.just(inputStream.readAllBytes());
     }
 
+    @MessageMapping("cam-exit")
+    Mono<Boolean> disableCamera() {
+        return Mono.just(videoAdapter.disableCamera());
+    }
+
 }
