@@ -1,14 +1,18 @@
 package com.streaming.producer.controller;
 
 import com.streaming.producer.adapter.VideoAdapter;
+import com.streaming.producer.model.FrameVideoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.util.stream.Stream;
 
 @RestController
 public class FileController {
@@ -40,13 +44,23 @@ public class FileController {
      * Play finalized media file(not stream) in browser.
      */
     @MessageMapping("play-file")
-    Mono<byte[]> playMediaFile(String filename) throws IOException {
+    public Mono<byte[]> playMediaFile(String filename) throws IOException {
         InputStream inputStream = resourceLoader.getClassLoader().getResourceAsStream("static/" + filename);
         return Mono.just(inputStream.readAllBytes());
     }
 
+
+    //TODO add custom serializers/deserializers
+    @MessageMapping("cam-stream")
+    Flux<FrameVideoModel> getVideo(String cameraName) {
+        return Flux.fromStream(Stream.generate(() ->
+                new FrameVideoModel(videoAdapter.getCapture(cameraName))))
+                .delayElements(Duration.ofSeconds(1))
+                .log();
+    }
+
     @MessageMapping("cam-exit")
-    Mono<Boolean> disableCamera() {
+    public Mono<Boolean> disableCamera() {
         return Mono.just(videoAdapter.disableCamera());
     }
 
