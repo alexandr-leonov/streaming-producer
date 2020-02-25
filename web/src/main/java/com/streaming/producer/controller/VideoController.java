@@ -1,6 +1,5 @@
 package com.streaming.producer.controller;
 
-import com.streaming.producer.ProducerApplication;
 import com.streaming.producer.adapter.VideoAdapter;
 import com.streaming.producer.model.FrameVideoModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,24 +26,21 @@ public class VideoController {
     }
 
 
-    //TODO add context
     //TODO add custom serializers/deserializers
     @MessageMapping("cam-stream")
     Flux<FrameVideoModel> getVideo(String cameraName) {
         return Flux.fromStream(Stream.iterate(0L, n -> ++n)
+                .filter(ignore -> videoAdapter.isActiveCamera())
                 .map(iterator -> new FrameVideoModel(iterator, videoAdapter.getCapture(cameraName))))
+                .filter(ignore -> videoAdapter.isActiveCamera())
                 .log()
                 .delayElements(Duration.ofSeconds(1));
     }
 
-    //TODO add unsubscribing by context at all infinite streams
+
     @MessageMapping("cam-exit")
     public Mono<Boolean> disableCamera() {
-        return Mono.defer(() -> {
-                    ProducerApplication.restart();
-                    return Mono.empty();
-                })
-                .then(Mono.just(videoAdapter.disableCamera()));
+        videoAdapter.disableCamera();
+        return Mono.just(!videoAdapter.isActiveCamera());
     }
-
 }

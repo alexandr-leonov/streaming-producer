@@ -18,11 +18,11 @@ import java.io.IOException;
 @Component
 public class VideoAdapterImpl implements VideoAdapter {
     private static OpenCVFrameGrabber grabber;
-    private static boolean isCameraDisable;
+    private static volatile boolean isActiveCamera = true;
 
     @Override
     public byte[] getCapture(String cameraName) {
-        if(isCameraDisable) {
+        if(!isActiveCamera) {
             //TODO how to enable camera
             throw new IllegalArgumentException("Sorry video cam is closed :(");
         }
@@ -51,15 +51,18 @@ public class VideoAdapterImpl implements VideoAdapter {
     }
 
     @Override
-    public boolean disableCamera() {
+    public boolean isActiveCamera() {
+        return isActiveCamera;
+    }
+
+    @Override
+    public void disableCamera() {
         try {
             //TODO how to disable camera. This implementation is not working yet.l
             grabber.stop();
-            isCameraDisable = true;
-            return true;
+            isActiveCamera  = false;
         } catch (FrameGrabber.Exception e) {
             log.error("Error in VideoApapter.disableCamera = {}", e.getMessage());
-            return false;
         }
     }
 }

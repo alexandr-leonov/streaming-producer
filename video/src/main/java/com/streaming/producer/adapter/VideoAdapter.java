@@ -6,5 +6,8 @@ public interface VideoAdapter {
 
     byte[] getVideo(String cameraName);
 
-    boolean disableCamera();
+    void disableCamera();
+
+    boolean isActiveCamera();
+
 }
